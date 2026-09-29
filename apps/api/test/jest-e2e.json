@@ -1,0 +1,12 @@
+{
+  "rootDir": "..",
+  "preset": "ts-jest",
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/test"],
+  "testRegex": "\\.e2e\\.spec\\.ts$",
+  "globalSetup": "<rootDir>/test/global-setup.ts",
+  "moduleNameMapper": {
+    "^@super-cables/ocpi$": "<rootDir>/../../packages/ocpi/src",
+    "^@super-cables/mock-cpo$": "<rootDir>/../mock-cpo/src"
+  }
+}
