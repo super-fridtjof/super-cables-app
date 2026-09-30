@@ -1,0 +1,48 @@
+{
+  "name": "@super-cables/api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Super Cables backend: OCPI 2.2.1 eMSP, device API and admin API",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.build.json",
+    "dev": "prisma generate && tsc -p tsconfig.build.json && (tsc -p tsconfig.build.json --watch --preserveWatchOutput & node --watch --env-file=.env dist/main.js)",
+    "start": "node --env-file=.env dist/main.js",
+    "typecheck": "prisma generate && tsc -p tsconfig.json --noEmit",
+    "test": "jest --passWithNoTests",
+    "test:e2e": "jest --config test/jest-e2e.json --runInBand",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.0.0",
+    "@nestjs/core": "^11.0.0",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/platform-express": "^11.0.0",
+    "@prisma/client": "^6.6.0",
+    "@super-cables/ocpi": "workspace:*",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@super-cables/mock-cpo": "workspace:*",
+    "@types/express": "^5.0.0",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^22.0.0",
+    "jest": "^29.7.0",
+    "prisma": "^6.6.0",
+    "ts-jest": "^29.2.0",
+    "typescript": "^5.8.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "moduleNameMapper": {
+      "^@super-cables/ocpi$": "<rootDir>/../../packages/ocpi/src"
+    }
+  }
+}

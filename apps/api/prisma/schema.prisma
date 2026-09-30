@@ -1,0 +1,146 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// A connected OCPI party (for now: charge point operators).
+model OcpiParty {
+  id                String      @id @default(uuid())
+  countryCode       String
+  partyId           String
+  role              String
+  name              String
+  versionsUrl       String
+  /// Endpoints of the negotiated version, as returned by the party (OCPI Endpoint[]).
+  endpoints         Json
+  /// Token C: what we present when calling the party. Needed in clear to send it.
+  outgoingToken     String
+  /// SHA-256 of token B: what the party presents when calling us.
+  incomingTokenHash String      @unique
+  status            PartyStatus @default(CONNECTED)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  devices Device[]
+  charges Charge[]
+
+  @@unique([countryCode, partyId])
+}
+
+enum PartyStatus {
+  CONNECTED
+  SUSPENDED
+}
+
+/// OCPI Location as last received from the CPO. EVSEs and connectors live inside `data`.
+model Location {
+  countryCode String
+  partyId     String
+  id          String
+  data        Json
+  lastUpdated DateTime
+
+  @@id([countryCode, partyId, id])
+}
+
+/// OCPI Session as last received from the CPO.
+model OcpiSession {
+  countryCode            String
+  partyId                String
+  id                     String
+  status                 String
+  kwh                    Float
+  authorizationReference String?
+  data                   Json
+  lastUpdated            DateTime
+
+  @@id([countryCode, partyId, id])
+  @@index([authorizationReference])
+}
+
+/// OCPI charge detail record: the final, billable record of a session.
+model Cdr {
+  countryCode String
+  partyId     String
+  id          String
+  sessionId   String?
+  totalEnergy Float
+  totalCost   Json
+  currency    String
+  data        Json
+  receivedAt  DateTime @default(now())
+
+  @@id([countryCode, partyId, id])
+  @@index([sessionId])
+}
+
+/// Tokens we (the eMSP) issue. The device creates one AD_HOC_USER token per charge.
+model Token {
+  uid         String   @id
+  type        String
+  contractId  String
+  valid       Boolean  @default(true)
+  whitelist   String
+  lastUpdated DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  charges Charge[]
+}
+
+/// A Super Cables connector handle, bound to one connector of one EVSE.
+model Device {
+  id          String       @id @default(uuid())
+  name        String
+  secretHash  String
+  status      DeviceStatus @default(ACTIVE)
+  party       OcpiParty    @relation(fields: [partyRef], references: [id])
+  partyRef    String
+  locationId  String
+  evseUid     String
+  connectorId String
+  lastSeenAt  DateTime?
+  createdAt   DateTime     @default(now())
+
+  charges Charge[]
+}
+
+enum DeviceStatus {
+  ACTIVE
+  DISABLED
+}
+
+/// Our own record of one charging journey on a device, from tap to receipt.
+model Charge {
+  id                String       @id @default(uuid())
+  device            Device       @relation(fields: [deviceId], references: [id])
+  deviceId          String
+  party             OcpiParty    @relation(fields: [partyRef], references: [id])
+  partyRef          String
+  token             Token        @relation(fields: [tokenUid], references: [uid])
+  tokenUid          String
+  status            ChargeStatus @default(STARTING)
+  /// OCPI session id, known once the CPO pushes the session.
+  sessionId         String?
+  kwh               Float        @default(0)
+  cdrId             String?
+  totalCostExclVat  Float?
+  totalCostInclVat  Float?
+  currency          String?
+  failureReason     String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([sessionId])
+}
+
+enum ChargeStatus {
+  STARTING
+  ACTIVE
+  STOPPING
+  COMPLETED
+  FAILED
+}
