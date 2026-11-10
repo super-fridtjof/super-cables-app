@@ -59,6 +59,13 @@ The handle must operate for an extended period off the holster (battery integral
   gravity in a hand-held, cable-loaded handle; heat from Rx + charger + U200 inside a sealed IP enclosure;
   transport/UN38.3 and IEC 62133 for later versions.
 
+## 5b. Team inputs (2026-11-10, confirmed)
+- Grip and all handle geometry are ours EXCEPT the FIT zone and the mating face (fixed). Handle must route the charging cable. Measurements due 2026-11-11.
+- Added-mass target < 250 g over a ~1 kg bare handle for later versions (custom battery, terminal, electronics). Prototype may exceed it.
+- Hang angle is a design output: screen tilt is a parameter set with grip angle and cable exit.
+- IP56 for this prototype, IP65 for the field-test version.
+- Coordinator derivation: 250 g implies ~3 W average electronics (2 h needs ~12 Wh, ~50 g cells) vs ~32 Wh / ~130 g at 8 W.
+
 ## 6. Knowledge state
 - Confirmed: items in sections 2-4.
 - Assumptions: use profile, 5/8 W load, -25..+40 degC, FIT zone geometry suitable for a 50x40 coil.
@@ -71,4 +78,4 @@ The handle must operate for an extended period off the holster (battery integral
 |---|---|---|---|---|
 | R0 | 2026-11-10 | No-battery bench design (doc) | - | - |
 | R1 | 2026-11-10 | Battery made mandatory | All power, thermal, mass, packaging | reviews/R1-CONSOLIDATED.md |
-| R2 | 2026-11-10 | Decisions 1-7 in R1-CONSOLIDATED.md adopted as design basis | Thermal and cold gates still open | pending Fusion model + Stage 1-4 tests |
+| R2 | 2026-11-10 | Team inputs 5b + decisions 1-7 in R1-CONSOLIDATED.md adopted as design basis | Thermal and cold gates still open | pending Fusion model + Stage 1-4 tests |
